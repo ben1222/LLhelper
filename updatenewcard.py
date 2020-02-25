@@ -26,6 +26,8 @@ card_count_new = 0
 attribute = ['','smile', 'pure', 'cool', '', 'all']
 rarity = ['','N','R','SR','UR','SSR']
 
+offset = 1
+
 def namechange(name):
     if name == u"南琴梨":
         return u"南小鸟"
@@ -45,6 +47,7 @@ if __name__ == "__main__":
     #cntc = cndbconn.execute('SELECT * FROM unit_m;')
     #cntmp = cntc.fetchone()
     while jptmp:#[0] < 30:
+        print jptmp
         card_count_in_db += 1
         card_id = jptmp[1]
         card_key = str(card_id)
@@ -57,7 +60,7 @@ if __name__ == "__main__":
             card['series'] = ''
             card['jpseries'] = ''
             card['type'] = u'卡池卡'
-        skillid = jptmp[13]
+        skillid = jptmp[13 + offset]
         card = cards[card_key]
         card['id'] = card_id
         if has_cndb:
@@ -65,51 +68,53 @@ if __name__ == "__main__":
             cntmp = cncard.fetchone()
         else:
             cntmp = 0
-        card['rarity'] = rarity[jptmp[11]]
-        card['attribute'] = attribute[jptmp[12]]
-        card['jpeponym'] = jptmp[3]
-        card['jpname'] = jptmp[4]
+        card['rarity'] = rarity[jptmp[11 + offset]]
+        card['attribute'] = attribute[jptmp[12 + offset]]
+        card['jpeponym'] = jptmp[3 + offset]
+        card['jpname'] = jptmp[4 + offset]
         # do not overwrite old data
         if not card.has_key('eponym'):
-            card['eponym'] = jptmp[3]
+            card['eponym'] = jptmp[3 + offset]
         if not card.has_key('name'):
-            card['name'] = jptmp[4]
-        card['hp'] =  jptmp[24]-1
-        card['smile2'] = jptmp[25]
-        card['pure2'] = jptmp[26]
-        card['cool2'] = jptmp[27]
+            card['name'] = jptmp[4 + offset]
+        card['hp'] =  jptmp[24 + offset] - 1
+        card['smile2'] = jptmp[25 + offset]
+        card['pure2'] = jptmp[26 + offset]
+        card['cool2'] = jptmp[27 + offset]
         card['smile'] =  0
         card['pure'] = 0
         card['cool'] = 0
         card['skill'] = skillid
-        card['Cskill'] = jptmp[15]
+        card['Cskill'] = jptmp[15 + offset]
         card['support'] = 0
         card['special'] = 0
-        card['minslot'] = jptmp[20]
-        card['maxslot'] = jptmp[21]
+        card['minslot'] = jptmp[20 + offset]
+        card['maxslot'] = jptmp[21 + offset]
 
         #card['type'] = ''
         card['Cskillattribute'] = card['attribute']
         card['Cskillpercentage'] = 0
 
         if cntmp:
-            card['eponym'] = cntmp[3]
-            card['name'] = namechange(cntmp[4])
-        if jptmp[22] > 0:
+            card['eponym'] = cntmp[3 + offset]
+            card['name'] = namechange(cntmp[4 + offset])
+        if jptmp[22 + offset] > 0:
             card['support'] = 1
-        if jptmp[5] == jptmp[6] and card['support'] == 0:
+        if jptmp[5 + offset] == jptmp[6 + offset] and card['support'] == 0:
             card['special'] = 1
         if card['support'] == 0 and card['special'] == 0:
-            patterntmp = jpdbconn.execute('SELECT * FROM unit_level_up_pattern_m WHERE unit_level_up_pattern_id = '+str(jptmp[23])+' AND unit_level = '+str(jptmp[18])+';')
+            patterntmp = jpdbconn.execute('SELECT * FROM unit_level_up_pattern_m WHERE unit_level_up_pattern_id = '+str(jptmp[23 + offset])+' AND unit_level = '+str(jptmp[18 + offset])+';')
             tmp = patterntmp.fetchone()
             card['smile'] = card['smile2']-tmp[4]
             card['pure'] = card['pure2']-tmp[5]
             card['cool'] = card['cool2']-tmp[6]
 
         #skill
+        print 'skillid = ' + str(skillid)
         if skillid and card['support'] == 0:
             jpskilltmp = jpdbconn.execute('SELECT name,skill_effect_type,trigger_type,unit_skill_level_up_pattern_id FROM unit_skill_m WHERE unit_skill_id = '+str(skillid)+';')
             jpskill = jpskilltmp.fetchone()
+            print 'jpskill = '+ str(jpskill)
             card['jpskillname'] = jpskill[0]
             # do not overwrite old data
             if not card.has_key('skillname'):
@@ -149,8 +154,8 @@ if __name__ == "__main__":
                     card['effecttarget'].append(tmp[0])
                     tmp = effecttarget.fetchone()
         #leader skill
-        if jptmp[15]:
-            Cskilldetail = jpdbconn.execute('SELECT * FROM unit_leader_skill_m WHERE unit_leader_skill_id = '+str(jptmp[15])+';')
+        if jptmp[15  + offset]:
+            Cskilldetail = jpdbconn.execute('SELECT * FROM unit_leader_skill_m WHERE unit_leader_skill_id = '+str(jptmp[15 + offset])+';')
             cskill = Cskilldetail.fetchone()
             base =['','smile','pure','cool']
             card['Cskillpercentage'] = cskill[5]
@@ -159,7 +164,7 @@ if __name__ == "__main__":
                 card['Cskillattribute'] = base[(cskill[3]/10)%10]
             else:
                 card['Cskillattribute'] = base[cskill[3]%10]
-            Csecondskilldetail = jpdbconn.execute('SELECT * FROM unit_leader_skill_extra_m WHERE unit_leader_skill_id = '+str(jptmp[15])+';')
+            Csecondskilldetail = jpdbconn.execute('SELECT * FROM unit_leader_skill_extra_m WHERE unit_leader_skill_id = '+str(jptmp[15 + offset])+';')
             csecondskill = Csecondskilldetail.fetchone()
             if csecondskill:
                 card['Csecondskillattribute'] = csecondskill[3]
