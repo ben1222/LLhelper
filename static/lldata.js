@@ -1469,13 +1469,13 @@ var LLConst = (function () {
       if (default_set == KEYS.SONG_DEFAULT_SET_1) {
          expert_default.positionweight = [63.75,63.75,63.75,63.75,0,63.75,63.75,63.75,63.75];
          expert_default.combo = 500;
-         master_default.positionweight = [87.5,87.5,87.5,87.5,0,87.5,87.5,87.5,87.5];
-         master_default.combo = 700;
+         master_default.positionweight = [112.5,112.5,112.5,112.5,0,112.5,112.5,112.5,112.5];
+         master_default.combo = 900;
       } else if (default_set == KEYS.SONG_DEFAULT_SET_2) {
          expert_default.positionweight = [63,63,63,63,0,63,63,63,63];
          expert_default.combo = 504;
-         master_default.positionweight = [88,88,88,88,0,88,88,88,88];
-         master_default.combo = 704;
+         master_default.positionweight = [113,113,113,113,0,113,113,113,113];
+         master_default.combo = 904;
       }
       var default_song = {'group': song_group, 'bpm': 200, 'attribute': '', 'settings': {}};
       default_song.name = '默认曲目' + default_set + '（' + ret.getSongGroupShortName(song_group) + '）';
